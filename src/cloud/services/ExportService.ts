@@ -1,17 +1,19 @@
 import Excel from 'exceljs';
 
-const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object> => {
-  const medicalRecords = await new Parse.Query('MedicalRecord').find({
-    sessionToken: user.getSessionToken(),
-  });
-  // if (medicalRecords.length) {
-  // }
-  console.log(medicalRecords);
+const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object | undefined> => {
+  const medicalRecords = await new Parse.Query('MedicalRecord')
+    .include(['patient', 'morfologia', 'topografia'])
+    .find({
+      sessionToken: user.getSessionToken(),
+    });
+  if (medicalRecords.length === 0) {
+    return undefined;
+  }
 
   const header2 = [
     'ID',
-    'Registro Hospitalario',
-    'Iniciales',
+    'DNI',
+    'Nombre Completo',
     'Sexo',
     'Ámbito de atención',
     'Fecha de Nacimiento',
@@ -143,6 +145,84 @@ const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object> => 
     'Estado a los 3 meses',
     'Estado a los 6 meses',
   ];
+
+  const excelData = medicalRecords.map((mr) => {
+    const patient = mr.get('patient');
+    const dataset = [
+      // Datos filiatorios
+      mr.id,
+      `${patient.get('tipoDocumento')} - ${patient.get('nroDocumento')}`,
+      `${patient.get('apellido')}, ${patient.get('nombre')}`,
+      patient.get('sexo'),
+      '',
+      patient.get('fechaNacimiento'),
+      patient.get('zonaResidencia'),
+      patient.get('fechaNacimiento'),
+      patient.get('estadoCivil'),
+      patient.get('raza'),
+      patient.get('ocupacionActual'),
+      patient.get('nivelEducacion'),
+      patient.get('paisResidencia'),
+      patient.get('peso'),
+      patient.get('talla'),
+      patient.get('imc'),
+      // Caracteristicas tumorales
+      mr.get('topografia') ? mr.get('topografia').get('descripcion') : '',
+      mr.get('morfologia') ? mr.get('morfologia').get('descripcion') : '',
+      mr.get('estadioEnfermedad'),
+      mr.get('metastasis'),
+      mr.get('tratamientoEnCurso'),
+      mr.get('terapiaOncologicaActual'),
+      mr.get('intencionTratamiento'),
+      mr.get('totalMesesTodosTratamiento'),
+      mr.get('totalMesesUltimoTratamiento'),
+      mr.get('fechaUltimoTratamientoSistemico'),
+      mr.get('psInicioUltimoTratamientoSistemico'),
+      mr.get('nTratamientosSistematicosPrevios'),
+      mr.get('tipoTratamientoMomentoDiagnosticoCovid'),
+      mr.get('tipoCheckPointInhibitor'),
+      mr.get('primerDosisInmunoterapia'),
+      mr.get('ultimaDosisInmunoterapia'),
+      mr.get('efectosAdversosInmunoterapia'),
+      mr.get('tipoEfectosAdversos'),
+      mr.get('manejoEfectosAdversos'),
+      mr.get('tratamientoEfectosAdversos'),
+      mr.get('tratamientoEfectosAdversosDetalle'),
+      '',
+      '',
+      // Información de salud
+      mr.get('habitoTabaquico'),
+      mr.get('paquetesAnio'),
+      mr.get('consumoAlcohol'),
+      mr.get('hipertensionArterial'),
+      mr.get('hipercolesterolemia'),
+      mr.get('obesidad'),
+      mr.get('enfermedadAutoinmune'),
+      mr.get('enfermedadRenalCronica'),
+      mr.get('epoc'),
+      mr.get('diabetes'),
+      mr.get('asma'),
+      mr.get('otrasEnfermedadesCardiovasculares'),
+      mr.get('hiv'),
+      mr.get('otrasComorbilidadesRelevantes') ? mr.get('otrasComorbilidadesRelevantes')[0] : '',
+      mr.get('vacunacionPrevia') && mr.get('vacunacionPrevia').toLowerCase() !== 'otras'
+        ? mr.get('vacunacionPrevia')
+        : mr.get('vacunacionPreviaDetalle'),
+      mr.get('influenza2019'),
+      mr.get('influenza2020'),
+      mr.get('medicacionHabitual'),
+      mr.get('hepatitis'),
+      mr.get('actividadFisica') ? mr.get('actividadFisica')[0] : '',
+      mr.get('actividadFisicaFrecuencia'),
+      mr.get('infeccionRespiratoriaViralReciente'),
+      mr.get('usoAntinflamatorios'),
+      mr.get('tipoAntiInflamatorios'),
+      mr.get('usoAntibioticos'),
+      mr.get('usoAntibioticosDetalle'),
+    ];
+    return dataset;
+  });
+
   // generate workbook
   const workbook = new Excel.Workbook();
   const worksheet = workbook.addWorksheet('Datos registros - covid');
@@ -157,7 +237,7 @@ const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object> => 
   worksheet.getCell('AN1').value = 'INFORMACION DE SALUD';
   worksheet.getCell('BN1').value = 'COVID-19 / OTROS VIRUS';
 
-  const rows = [header2, [0, 1]];
+  const rows = [header2, ...excelData];
   worksheet.addRows(rows);
 
   worksheet.getCell('A1').fill = {
@@ -204,8 +284,7 @@ const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object> => 
   const file = new Parse.File(`reporte-${strDate}.xlsx`, Array.from(<Buffer>buffer));
   fileExport.set('file', file);
   fileExport.set('type', 'xlsx');
-  await fileExport.save(null, { useMasterKey: true });
-  return fileExport;
+  return fileExport.save(null, { useMasterKey: true });
 };
 
 export default { exportMedicalRecords };

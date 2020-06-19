@@ -1,11 +1,10 @@
 import ExportService from '../services/ExportService';
 
-const exportMedicalRecords = async (
+const exportMedicalRecords = (
   request: Sensbox.SecureFunctionRequest,
-): Promise<Parse.Object> => {
+): Promise<Parse.Object | undefined> => {
   const { user } = request;
-  const exportedMedicalRecords = await ExportService.exportMedicalRecords(user);
-  return exportedMedicalRecords;
+  return ExportService.exportMedicalRecords(user);
 };
 
 export default {
