@@ -1,11 +1,8 @@
 import Excel from 'exceljs';
+import MedicalRecordService from './MedicalRecordService';
 
 const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object | undefined> => {
-  const medicalRecords = await new Parse.Query('MedicalRecord')
-    .include(['patient', 'morfologia', 'topografia'])
-    .find({
-      sessionToken: user.getSessionToken(),
-    });
+  const medicalRecords = await MedicalRecordService.fetchMedicalRecords(user);
   if (medicalRecords.length === 0) {
     return undefined;
   }
