@@ -1,11 +1,11 @@
 const fetchMedicalRecords = async (user: Parse.User) => {
   const LIMIT_RECORDS = 10000;
   const pipeline = [
-    { sort: { createdAt: -1 } },
+    { sort: { _created_at: -1 } },
     {
       group: {
         objectId: '$patient',
-        id: { $last: '$_id' },
+        id: { $first: '$_id' },
       },
     },
     { limit: LIMIT_RECORDS },
