@@ -12,7 +12,9 @@ const fetchLastMedicalRecord = async (
   if (!patientId) throw new Parse.Error(400, 'patientId is required');
 
   try {
-    const patient = await new Parse.Query('Patient').get(patientId, { useMasterKey: true });
+    const patient = await new Parse.Query('Patient')
+      .include(['morfologia', 'topografia'])
+      .get(patientId, { useMasterKey: true });
     const lastMedicalRecord = await new Parse.Query('MedicalRecord')
       .equalTo('patient', patient)
       .descending('createdAt')
