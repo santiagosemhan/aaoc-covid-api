@@ -96,10 +96,14 @@ class Account extends Base {
       if (account.get('user')) {
         try {
           const user = await account.get('user').fetch({ useMasterKey: true });
-          const isAdmin = await SecurityService.hasUserRole(user, RolesType.ADMINISTRATOR);
+          const [isAdmin, roles] = await Promise.all([
+            SecurityService.hasUserRole(user, RolesType.ADMINISTRATOR),
+            SecurityService.getUserRoles(user)
+          ]);
           account.set('username', user.getUsername());
           account.set('email', user.getEmail());
           account.set('isAdmin', isAdmin);
+          account.set('roles', roles);
         } catch (error) {
           account.set('isAdmin', false);
         }
