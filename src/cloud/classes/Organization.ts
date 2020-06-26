@@ -20,6 +20,10 @@ class Organization extends Base {
         }),
       );
     }
+    const acl = object.getACL();
+    if (acl) {
+      acl.setPublicReadAccess(true);
+    }
   }
 
   static async afterSave(request: Parse.Cloud.AfterSaveRequest) {
