@@ -103,7 +103,7 @@ class Account extends Base {
           account.set('username', user.getUsername());
           account.set('email', user.getEmail());
           account.set('isAdmin', isAdmin);
-          account.set('roles', roles);
+          account.set('roles', roles.map(r => r.toJSON()));
         } catch (error) {
           account.set('isAdmin', false);
         }
