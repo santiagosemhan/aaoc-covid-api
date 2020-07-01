@@ -24,6 +24,7 @@ export default {
   // verbose: true,
   silent: false,
   enableAnonymousUsers: false,
+  sessionLength: 2700, // 45 minutes
   // fileKey: 'optionalFileKey',
   // mountGraphQL: true,
   // mountPlayground: true,
