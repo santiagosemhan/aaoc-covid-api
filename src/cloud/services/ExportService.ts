@@ -227,7 +227,7 @@ const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object | un
       mr.get('otrosMetodosDiagnosticoDetalle'),
       mr.get('contactoPersonaSintomatica'),
       mr.get('contactoPersonaDiagnosticada'),
-      mr.get('sintomasAlDiagnostico'),
+      mr.get('sintomasAlDiagnostico') ? mr.get('sintomasAlDiagnostico')[0] : '',
       mr.get('fechaInicioSintomas'),
       mr.get('tieneInfeccionViralSinCovid'),
       mr.get('tieneInfeccionViralConCovid'),
