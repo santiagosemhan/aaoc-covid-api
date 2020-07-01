@@ -1,6 +1,16 @@
+import { RolesType } from './../../types/constants';
+import SecurityService from "./SecurityService";
+
 const fetchMedicalRecords = async (user: Parse.User) => {
   const LIMIT_RECORDS = 10000;
-  const pipeline = [
+
+  const isAdmin = await SecurityService.hasUserRole(user, RolesType.ADMINISTRATOR);
+  const pipeline = [];
+  if (!isAdmin) {
+    pipeline.push({ match: { _p_createdBy:`_User$${user.id}`}});
+  }
+
+  pipeline.push(...[
     { sort: { _created_at: -1 } },
     {
       group: {
@@ -9,7 +19,7 @@ const fetchMedicalRecords = async (user: Parse.User) => {
       },
     },
     { limit: LIMIT_RECORDS },
-  ];
+  ]);
 
   // @ts-ignore
   const results = await new Parse.Query('MedicalRecord').aggregate(pipeline, {
