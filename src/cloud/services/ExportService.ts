@@ -260,7 +260,7 @@ const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object | un
       mr.get('admisionUciAlInicio'),
       mr.get('admisionUciMasTarde'),
       mr.get('admisionUciDuracion'),
-      '', // requirió asistencia respiratoria mecánica
+      mr.get('asistenciaRespiratoriaMecanica'),
       mr.get('saturacionO2'),
       mr.get('temperatura'),
       mr.get('usoSuplementoOxigeno'),
