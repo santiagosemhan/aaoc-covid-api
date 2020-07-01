@@ -145,10 +145,13 @@ const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object | un
 
   const excelData = medicalRecords.map((mr) => {
     const patient = mr.get('patient');
+    if (!patient) {
+      return [];
+    }
     const dataset = [
       // Datos filiatorios
-      mr.id,
-      `${patient.get('tipoDocumento')} - ${patient.get('nroDocumento')}`,
+      patient.id,
+      `${patient.get('tipoDocumento')} - ${patient.get('numeroDocumento')}`,
       `${patient.get('apellido')}, ${patient.get('nombre')}`,
       patient.get('sexo'),
       '',
@@ -234,7 +237,7 @@ const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object | un
   worksheet.getCell('AN1').value = 'INFORMACION DE SALUD';
   worksheet.getCell('BN1').value = 'COVID-19 / OTROS VIRUS';
 
-  const rows = [header2, ...excelData];
+  const rows = [header2, ...excelData.filter((i) => i.length > 0)];
   worksheet.addRows(rows);
 
   worksheet.getCell('A1').fill = {
