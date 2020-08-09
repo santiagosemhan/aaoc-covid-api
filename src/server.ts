@@ -6,7 +6,15 @@ import { booleanParser } from './cloud/utils';
 const { ParseServer } = require('parse-server');
 const ParseDashboard = require('parse-dashboard');
 
-const { appName, masterKey, readOnlyMasterKey, appId, liveQuery, serverURL, port } = ParseServerOptions;
+const {
+  appName,
+  masterKey,
+  readOnlyMasterKey,
+  appId,
+  liveQuery,
+  serverURL,
+  port,
+} = ParseServerOptions;
 const defaultDashboardUser = process.env.DASHBOARD_USER;
 const defaultDashboardPass = process.env.DASHBOARD_PASS;
 const testUser = process.env.DASHBOARD_TEST_USER;

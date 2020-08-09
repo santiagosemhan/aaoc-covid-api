@@ -9,6 +9,8 @@ const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object | un
 
   const header2 = [
     'ID',
+    'Usuario',
+    'Centro',
     'DNI',
     'Nombre Completo',
     'Sexo',
@@ -148,9 +150,13 @@ const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object | un
     if (!patient) {
       return [];
     }
+
+    const createdBy = mr.get('createdBy')?.get('account');
     const dataset = [
       // Datos filiatorios
       patient.id,
+      createdBy ? `${createdBy.get('lastName')}, ${createdBy.get('firstName')}` : '',
+      createdBy && createdBy.get('organization') ? createdBy.get('organization').get('name') : '',
       `${patient.get('tipoDocumento')} - ${patient.get('numeroDocumento')}`,
       `${patient.get('apellido')}, ${patient.get('nombre')}`,
       patient.get('sexo'),
@@ -170,7 +176,7 @@ const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object | un
       mr.get('topografia') ? mr.get('topografia').get('descripcion') : '',
       mr.get('morfologia') ? mr.get('morfologia').get('descripcion') : '',
       mr.get('estadioEnfermedad'),
-      mr.get('metastasis'),
+      mr.get('metastasis') ? mr.get('metastasis').join(',') : '',
       mr.get('tratamientoEnCurso'),
       mr.get('terapiaOncologicaActual'),
       mr.get('intencionTratamiento'),
@@ -227,12 +233,14 @@ const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object | un
       mr.get('otrosMetodosDiagnosticoDetalle'),
       mr.get('contactoPersonaSintomatica'),
       mr.get('contactoPersonaDiagnosticada'),
-      mr.get('sintomasAlDiagnostico') ? mr.get('sintomasAlDiagnostico')[0] : '',
+      mr.get('sintomasAlDiagnostico') ? mr.get('sintomasAlDiagnostico').join(',') : '',
       mr.get('fechaInicioSintomas'),
       mr.get('tieneInfeccionViralSinCovid'),
       mr.get('tieneInfeccionViralConCovid'),
       mr.get('otroVirusDetalle'),
-      mr.get('sintomasAlDiagnosticoOtroVirus'),
+      mr.get('sintomasAlDiagnosticoOtroVirus')
+        ? mr.get('sintomasAlDiagnosticoOtroVirus').join(',')
+        : '',
       mr.get('fechaInicioSintomasOtroVirus'),
       mr.get('fechaDiagnosticoOtroVirus'),
       mr.get('muestraBiologicaParaDiagnostico'),
@@ -297,14 +305,14 @@ const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object | un
   const worksheet = workbook.addWorksheet('Datos registros - covid');
   worksheet.properties.defaultColWidth = 30;
 
-  worksheet.mergeCells('A1:P1');
-  worksheet.mergeCells('Q1:AM1');
-  worksheet.mergeCells('AN1:BM1');
-  worksheet.mergeCells('BN1:EC1');
+  worksheet.mergeCells('A1:R1');
+  worksheet.mergeCells('S1:AO1');
+  worksheet.mergeCells('AP1:BO1');
+  worksheet.mergeCells('BP1:EE1');
   worksheet.getCell('A1').value = 'DATOS FILIATORIOS';
-  worksheet.getCell('Q1').value = 'CARACTERISTICAS TUMORALES';
-  worksheet.getCell('AN1').value = 'INFORMACION DE SALUD';
-  worksheet.getCell('BN1').value = 'COVID-19 / OTROS VIRUS';
+  worksheet.getCell('S1').value = 'CARACTERISTICAS TUMORALES';
+  worksheet.getCell('AP1').value = 'INFORMACION DE SALUD';
+  worksheet.getCell('BP1').value = 'COVID-19 / OTROS VIRUS';
 
   const rows = [header2, ...excelData.filter((i) => i.length > 0)];
   worksheet.addRows(rows);
@@ -315,19 +323,19 @@ const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object | un
     fgColor: { argb: 'FFFFFF00' },
     bgColor: { argb: 'FF0000FF' },
   };
-  worksheet.getCell('Q1').fill = {
+  worksheet.getCell('S1').fill = {
     type: 'pattern',
     pattern: 'solid',
     fgColor: { argb: '00B050' },
     bgColor: { argb: '00B050' },
   };
-  worksheet.getCell('AN1').fill = {
+  worksheet.getCell('AP1').fill = {
     type: 'pattern',
     pattern: 'solid',
     fgColor: { argb: 'BDD7EE' },
     bgColor: { argb: 'BDD7EE' },
   };
-  worksheet.getCell('BN1').fill = {
+  worksheet.getCell('BP1').fill = {
     type: 'pattern',
     pattern: 'solid',
     fgColor: { argb: 'FF0000' },
