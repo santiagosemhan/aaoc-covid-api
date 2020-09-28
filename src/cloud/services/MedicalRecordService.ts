@@ -32,6 +32,7 @@ const fetchMedicalRecords = async (user: Parse.User) => {
   const medicalRecords = await new Parse.Query('MedicalRecord')
     .include([
       'patient.paisNacimiento',
+      'patient.paisResidencia',
       'morfologia',
       'topografia',
       'createdBy.account.organization',
