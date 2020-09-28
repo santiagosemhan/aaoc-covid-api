@@ -30,7 +30,12 @@ const fetchMedicalRecords = async (user: Parse.User) => {
   const medicalRecordsIds = results.map((mr: { id: string }) => mr.id);
 
   const medicalRecords = await new Parse.Query('MedicalRecord')
-    .include(['patient', 'morfologia', 'topografia', 'createdBy.account.organization'])
+    .include([
+      'patient.paisNacimiento',
+      'morfologia',
+      'topografia',
+      'createdBy.account.organization',
+    ])
     .containedIn('objectId', medicalRecordsIds)
     .limit(LIMIT_RECORDS)
     .find({
