@@ -162,7 +162,7 @@ const exportMedicalRecords = async (user: Parse.User): Promise<Parse.Object | un
       patient.get('sexo'),
       '',
       patient.get('fechaNacimiento'),
-      patient.get('paisNacimiento').name,
+      patient.get('paisNacimiento').get('name'),
       patient.get('zonaResidencia'),
       patient.get('estadoCivil'),
       patient.get('raza'),
